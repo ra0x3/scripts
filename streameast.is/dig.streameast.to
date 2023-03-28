@@ -1,0 +1,21 @@
+
+; <<>> DiG 9.10.6 <<>> streameast.to
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 36479
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;streameast.to.			IN	A
+
+;; ANSWER SECTION:
+streameast.to.		273	IN	A	104.21.95.126
+streameast.to.		273	IN	A	172.67.144.244
+
+;; Query time: 58 msec
+;; SERVER: 10.1.0.1#53(10.1.0.1)
+;; WHEN: Mon Feb 06 18:17:02 EST 2023
+;; MSG SIZE  rcvd: 74
+

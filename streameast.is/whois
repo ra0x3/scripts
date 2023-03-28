@@ -1,0 +1,48 @@
+WHOIS search results
+% This is the ISNIC Whois server.
+%
+% Rights restricted by copyright.
+% See https://www.isnic.is/en/about/copyright
+domain: streameast.is
+registrant: TE2534-IS
+admin-c: NI231-IS
+tech-c: NI231-IS
+zone-c: CN25-IS
+billing-c: NI230-IS
+nserver: katelyn.ns.cloudflare.com
+nserver: zeus.ns.cloudflare.com
+dnssec: unsigned delegation
+created: March 11 2022
+expires: March 11 2023
+source: ISNIC
+nic-hdl: TE2534-IS
+address: FR
+created: March 11 2022
+source: ISNIC
+role: NameCheap, Inc.
+nic-hdl: NI230-IS
+address: 4600 East Washington Street, Suite 305
+address: Phoenix, AZ 85034
+address: US
+phone: +1 6613102107
+e-mail: registryfinance@namecheap.com
+created: March 21 2019
+source: ISNIC
+role: NameCheap, Inc.
+nic-hdl: NI231-IS
+address: 4600 East Washington Street, Suite 305
+address: Phoenix, AZ 85034
+address: US
+phone: +1 6613102107
+e-mail: isnicdomains@namecheap.com
+created: March 22 2019
+source: ISNIC
+role: CloudFlare NOC
+nic-hdl: CN25-IS
+address: 665 3rd Street, Suite 207
+address: San Francisco, CA 94107
+address: US
+phone: +1 6503198930
+e-mail: noc@cloudflare.com
+created: January 19 2012
+source: ISNIC
