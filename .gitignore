@@ -3,3 +3,4 @@ nohup.pid
 *.pyc
 **/venv/
 nba/data
+*.sql

@@ -11,6 +11,8 @@ import multiprocessing
 from tqdm import tqdm
 import psycopg2
 
+min_game_id = 401126813
+max_game_id = 401474910
 
 def injury_report():
     url = "https://www.cbssports.com/nba/injuries/"
@@ -195,6 +197,7 @@ def box_score(game_id, cursor):
                 data[player]["day"] = teams[bk]["day"]
                 data[player]["year"] = teams[bk]["year"]
                 data[player]["time"] = teams[bk]["time"]
+                data[player]["home"] = teams[bk]["home"]
                 data[player][h] = s
 
                 for k, v in teams[bk].items():
@@ -211,6 +214,7 @@ def box_score(game_id, cursor):
             data[player]["day"] = teams[bk]["day"]
             data[player]["year"] = teams[bk]["year"]
             data[player]["time"] = teams[bk]["time"]
+            data[player]["home"] = teams[bk]["home"]
 
             for k, v in teams[bk].items():
                 if k.startswith("t_"):
@@ -264,7 +268,7 @@ def into_n_chunks(x, n):
 
 if __name__ == "__main__":
     num_procs = multiprocessing.cpu_count()
-    game_ids = list(range(401100000, 401479283))
+    game_ids = list(range(min_game_id, max_game_id))
     chunks = into_n_chunks(game_ids, num_procs)
 
     for chunk in chunks:
