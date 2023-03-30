@@ -6,6 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 import datetime as dt
 
+
 def team_ref(x):
     if not x or pd.isnull(x):
         return None
@@ -29,8 +30,8 @@ def cleaner(x):
         return 0
     return x
 
-def to_date(row):
 
+def to_date(row):
     months = {
         1: "January",
         2: "February",
@@ -48,11 +49,11 @@ def to_date(row):
 
     conds = [
         not row["year"],
-        pd.isnull(row["year"]),    
+        pd.isnull(row["year"]),
         not row["day"],
-        pd.isnull(row["day"]), 
+        pd.isnull(row["day"]),
         not row["month"],
-        pd.isnull(row["month"]), 
+        pd.isnull(row["month"]),
     ]
 
     if any(conds):
@@ -64,11 +65,12 @@ def to_date(row):
     day = str(int(row["day"]))
 
     if len(day) == 1:
-        day = "0" + day 
+        day = "0" + day
 
     d = f"{month} {day}, {year}"
     d = dt.datetime.strptime(d, "%B %d, %Y")
     return d
+
 
 def stack_csvs():
     files = os.listdir("data")
@@ -96,10 +98,15 @@ def stack_csvs():
     df["t_fg_att"] = df["t_fg"].apply(fg_att)
     df["t_ft_made"] = df["t_ft"].apply(fg_made)
     df["t_ft_att"] = df["t_fg"].apply(fg_att)
+    df["pts_reb_ast"] = df["pts"] + df["reb"] + df["ast"]
     df["date"] = df.apply(lambda row: to_date(row), axis=1)
 
     df.rename(columns={"3pt_p": "threept_p"}, inplace=True)
-    # df.drop(["Unnamed: 0.1", "Unnamed: 0"], axis=1, inplace=True)
+
+    try:
+        df.drop(["Unnamed: 0.1", "Unnamed: 0"], axis=1, inplace=True)
+    except KeyError as err:
+        print("Error: ", str(err))
 
     floats = [
         "min",
@@ -135,7 +142,10 @@ def stack_csvs():
             df[col] = df[col].apply(cleaner)
             df[col] = df[col].astype("float32")
 
-    df.to_csv("data/stacked.csv")
+    now = dt.datetime.now().strftime("%Y-%m-%d")
+    df.drop_duplicates(inplace=True)
+    name = "data/stacked_" + now + ".csv"
+    df.to_csv(name)
 
 
 if __name__ == "__main__":

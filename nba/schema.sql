@@ -58,6 +58,6 @@ create table if not exists box (
 
 create table if not exists site (
   id bigserial primary key,
-  game_id varchar(20),
+  game_id varchar(20) unique,
   html text
 );

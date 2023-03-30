@@ -11,8 +11,10 @@ import multiprocessing
 from tqdm import tqdm
 import psycopg2
 
+start_from = 401236294
 min_game_id = 401126813
 max_game_id = 401474910
+
 
 def injury_report():
     url = "https://www.cbssports.com/nba/injuries/"
@@ -57,9 +59,12 @@ def is_pcnt_stat(x):
     return "-" in x and x.index("-") > 0
 
 
-def box_score(game_id, cursor):
+def box_score(game_id):
     url = "https://www.espn.com/nba/boxscore/_/gameId/" + game_id
     response = requests.get(url)
+    if "Page not found." in response.text:
+        return None, None
+
     soup = BeautifulSoup(response.text, "html.parser")
 
     aggregate = soup.find_all(class_=["ResponsiveTable", "ResponsiveTable--fixed-left", "Boxscore"])[1]
@@ -234,7 +239,7 @@ def box_score(game_id, cursor):
             "3pt_p": "threept_p",
         }
     )
-    df_filename = "data/boxscore_" + game_id + "_" + dt.datetime.now().strftime("%Y-%m-%d") + ".csv"
+    df_filename = "data/box_" + game_id + ".csv"
     df.to_csv(df_filename)
 
     return df, response.text
@@ -248,17 +253,25 @@ def scrape_task(items):
         cursor.execute("SELECT * FROM site WHERE game_id = %s", (str(game_id),))
         data = cursor.fetchone()
         if data:
-            print("Game({}) already scraped...".format(game_id))
-            continue
+            _, game_id, html = data
+            if html != "null" and "Page not found." not in html:
+                print("Game({}) already scraped...".format(game_id))
+                continue
+            print("Game {} found but was an empty/invalid game. Retrying...")
         print("Grabbing game: {}".format(game_id))
         try:
-            (_, html) = box_score(str(game_id), cursor)
-            cursor.execute(f"INSERT INTO site (game_id, html) VALUES (%s, %s)", (game_id, html))
+            (_, html) = box_score(str(game_id))
+            if html:
+                cursor.execute(
+                    f"INSERT INTO site (game_id, html) VALUES (%s, %s) ON CONFLICT(game_id) DO UPDATE SET html = (%s)",
+                    (game_id, html, html),
+                )
+            else:
+                print(f"Game {game_id} returned page not found.")
         except Exception as err:
             print("Failed to get info for game({}): {}".format(game_id, str(err)))
             cursor.execute(f"INSERT INTO site (game_id, html) VALUES (%s, %s)", (game_id, "null"))
         conn.commit()
-        time.sleep(1)
 
 
 def into_n_chunks(x, n):
