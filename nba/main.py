@@ -11,10 +11,8 @@ import multiprocessing
 from tqdm import tqdm
 import psycopg2
 
-start_from = 401236294
 min_game_id = 401126813
 max_game_id = 401474910
-
 
 def injury_report():
     url = "https://www.cbssports.com/nba/injuries/"
@@ -283,12 +281,10 @@ if __name__ == "__main__":
     num_procs = multiprocessing.cpu_count()
     game_ids = list(range(min_game_id, max_game_id))
     chunks = into_n_chunks(game_ids, num_procs)
+    tasks = [multiprocessing.Process(target=scrape_task, args=(chunk,)) for chunk in chunks]
+    for i, task in enumerate(tasks):
+        task.start()
+        print("Starting process ({}/{}): {}".format(i, i + 1, num_procs, task.name))
 
-    for chunk in chunks:
-        tasks = [multiprocessing.Process(target=scrape_task, args=(chunk,)) for chunk in chunks]
-        for i, task in enumerate(tasks):
-            task.start()
-            print("Starting process ({}/{}): {}".format(i, i + 1, num_procs, task.name))
-
-        for task in tasks:
-            task.join()
+    for task in tasks:
+        task.join()
