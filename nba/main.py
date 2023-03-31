@@ -2,6 +2,7 @@ import time
 import os
 import sys
 import requests
+import argparse
 from bs4 import BeautifulSoup
 import pandas as pd
 import datetime as dt
@@ -11,8 +12,6 @@ import multiprocessing
 from tqdm import tqdm
 import psycopg2
 
-min_game_id = 401126813
-max_game_id = 401474910
 
 def injury_report():
     url = "https://www.cbssports.com/nba/injuries/"
@@ -278,13 +277,57 @@ def into_n_chunks(x, n):
 
 
 if __name__ == "__main__":
-    num_procs = multiprocessing.cpu_count()
-    game_ids = list(range(min_game_id, max_game_id))
-    chunks = into_n_chunks(game_ids, num_procs)
-    tasks = [multiprocessing.Process(target=scrape_task, args=(chunk,)) for chunk in chunks]
-    for i, task in enumerate(tasks):
-        task.start()
-        print("Starting process ({}/{}): {}".format(i, i + 1, num_procs, task.name))
+    parser = argparse.ArgumentParser(description="NBA shit.")
+    parser.add_argument(
+        "-j",
+        "--job",
+        nargs="?",
+        type=str,
+        help="Which job to run.",
+    )
 
-    for task in tasks:
-        task.join()
+    parser.add_argument(
+        "-g",
+        "--game",
+        nargs="?",
+        type=int,
+        help="Which game ID to start from.",
+    )
+
+    opts = vars(parser.parse_args())
+
+    if opts["job"] == "default":
+        min_game_id = 401126813
+        max_game_id = 401474910
+
+        print("Starting default job using min game {} and max game {}".format(min_game_id, max_game_id))
+
+        num_procs = multiprocessing.cpu_count()
+        game_ids = list(range(min_game_id, max_game_id))
+        chunks = into_n_chunks(game_ids, num_procs)
+        tasks = [multiprocessing.Process(target=scrape_task, args=(chunk,)) for chunk in chunks]
+        for i, task in enumerate(tasks):
+            task.start()
+            print("Starting process ({}/{}): {}".format(i, i + 1, num_procs, task.name))
+
+        for task in tasks:
+            task.join()
+
+    elif opts["job"] == "recent":
+        start_game = opts.get("g") or opts.get("game")
+
+        print("Starting recent job using game: {}".format(start_game))
+
+        min_game_id = start_game - 100
+        max_game_id = start_game + 100
+
+        num_procs = multiprocessing.cpu_count()
+        game_ids = list(range(min_game_id, max_game_id))
+        chunks = into_n_chunks(game_ids, num_procs)
+        tasks = [multiprocessing.Process(target=scrape_task, args=(chunk,)) for chunk in chunks]
+        for i, task in enumerate(tasks):
+            task.start()
+            print("Starting process ({}/{}): {}".format(i, i + 1, num_procs, task.name))
+
+        for task in tasks:
+            task.join()
