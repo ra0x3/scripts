@@ -12,7 +12,6 @@ import multiprocessing
 from tqdm import tqdm
 import psycopg2
 
-
 def injury_report():
     url = "https://www.cbssports.com/nba/injuries/"
     response = requests.get(url)
@@ -42,7 +41,6 @@ def injury_report():
 
     return df
 
-
 def stat_as_pcnt(x):
     if not x or "-" not in x:
         return x
@@ -51,10 +49,8 @@ def stat_as_pcnt(x):
         return 0.0
     return round(float(x) / float(y), 3)
 
-
 def is_pcnt_stat(x):
     return "-" in x and x.index("-") > 0
-
 
 def box_score(game_id):
     url = "https://www.espn.com/nba/boxscore/_/gameId/" + game_id
@@ -241,7 +237,6 @@ def box_score(game_id):
 
     return df, response.text
 
-
 def scrape_task(items):
     conn = psycopg2.connect(dbname="nba", user="postgres", password="", host="localhost", port=5432)
     cursor = conn.cursor()
@@ -254,7 +249,7 @@ def scrape_task(items):
             if html != "null" and "Page not found." not in html:
                 print("Game({}) already scraped...".format(game_id))
                 continue
-            print("Game {} found but was an empty/invalid game. Retrying...")
+            print("Game {} found but was an empty/invalid game. Retrying...".format(game_id))
         print("Grabbing game: {}".format(game_id))
         try:
             (_, html) = box_score(str(game_id))
@@ -270,11 +265,9 @@ def scrape_task(items):
             cursor.execute(f"INSERT INTO site (game_id, html) VALUES (%s, %s)", (game_id, "null"))
         conn.commit()
 
-
 def into_n_chunks(x, n):
     for i in range(n):
         yield x[i::n]
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NBA shit.")
@@ -298,7 +291,8 @@ if __name__ == "__main__":
 
     if opts["job"] == "default":
         min_game_id = 401126813
-        max_game_id = 401474910
+        min_game_id = 401126905
+        max_game_id = 401480000
 
         print("Starting default job using min game {} and max game {}".format(min_game_id, max_game_id))
 
